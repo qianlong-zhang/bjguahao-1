@@ -187,7 +187,7 @@ class Guahao(object):
         self.duty_url = "http://www.114yygh.com/web/product/detail"
         self.confirm_url = "http://www.114yygh.com/web/order/saveOrder"
         self.patient_id_url = "http://www.114yygh.com/order/confirm/"
-        self.query_hospital_url = "http://www.114yygh.com/web/queryHospitalById"
+        self.query_hospital_url = "http://www.114yygh.com"
         self.calendar = "http://www.114yygh.com/web/product/list"
         self.order_patient_list = "http://www.114yygh.com/web/patient/orderPatientList"
         self.appoint_info_url = "http://www.114yygh.com/web/order/getAppointInfo"
@@ -238,7 +238,7 @@ class Guahao(object):
                 return True
         except Exception as e:
             pass
-          
+
         aes = AES_encrypt(self.config.web_password, 'ecb', '')
         logging.info("cookies登录失败")
 
@@ -303,7 +303,7 @@ class Guahao(object):
         else:
             doctor = self.select_doctor_one_day(self.config.date)
             return doctor
- 
+
     def select_doctor_one_day(self,duty_date):
         """选择合适的大夫"""
         hospital_id = self.config.hospital_id
@@ -409,7 +409,7 @@ class Guahao(object):
         except Exception as e:
             logging.error(e)
             sys.exit()
-        
+
     def get_it(self, doctor, sms_code, total_fee):
         """
         挂号
@@ -471,7 +471,7 @@ class Guahao(object):
                 "feeColor":"",
                 "dutyImgType":""
             }
-        #save order 
+        #save order
         response = self.browser.post(self.confirm_url, data=payload)
         logging.debug("payload:" + json.dumps(payload))
         logging.debug("response data:" + response.text)
@@ -513,15 +513,19 @@ class Guahao(object):
         return self.config.patient_id
 
     def gen_department_url(self):
-        return self.query_hospital_url + "?hosId="+str(self.config.hospital_id)+"&rd="+str(self.timestamp())
+        #/"+"&rd="+str(self.timestamp())
+        return self.query_hospital_url + "/hospital/"+str(self.config.hospital_id)+"/home"
     def timestamp(self):
         return int(round(time.time()*1000))
     def get_duty_time(self):
         """获取放号时间"""
         addr = self.gen_department_url()
+        print(f"addr:{addr}")
         response = self.browser.get(addr, "")
         ret = response.text
+        print(f"ret:{ret}")
         data = json.loads(ret)
+        print(f"data:{data}")
         if data['resCode'] == 0:
             # 放号时间
             refresh_time = data['data']['fhTime']
